@@ -2,6 +2,7 @@
 
 #include "CullingResult.h"
 #include "Library.h"
+#include "NearFarDistance.h"
 
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
@@ -82,6 +83,17 @@ public:
    * @return The bounding sphere in the new coordinate system.
    */
   BoundingSphere transform(const glm::dmat4& transformation) const noexcept;
+
+  /**
+   * @brief The distances calculated by the vector from the center of the
+   * bounding sphere to position projected onto direction plus/minus the radius
+   * of the bounding sphere. If you imagine the infinite number of planes with
+   * normal direction, this computes the smallest distance to the closest and
+   * farthest planes from position that intersect the bounding sphere.
+   * @return The nearest and farthest distances on the bounding sphere from
+   * position in direction.
+   */
+  NearFarDistance computePlaneDistances(const Plane& plane) const noexcept;
 
 private:
   glm::dvec3 _center;

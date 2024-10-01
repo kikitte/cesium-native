@@ -134,3 +134,11 @@ TEST_CASE("BoundingSphere::computeDistanceSquaredToPosition example") {
   CHECK(spheres[0].getCenter().x == 2.0);
   CHECK(spheres[1].getCenter().x == 1.0);
 }
+
+TEST_CASE("BoundingSphere::computePlaneDistances example") {
+  BoundingSphere bs{glm::dvec3{0.0, 0.0, 0.0}, 1.0};
+  Plane plane{glm::dvec3{-2.0, 1.0, 0.0}, glm::dvec3{1.0, 0.0, 0.0}};
+  NearFarDistance distance = bs.computePlaneDistances(plane);
+  CHECK(distance.near == 1.0);
+  CHECK(distance.far == 3.0);
+}
