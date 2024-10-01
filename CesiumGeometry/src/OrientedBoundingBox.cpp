@@ -148,4 +148,67 @@ OrientedBoundingBox::fromSphere(const BoundingSphere& sphere) noexcept {
   return OrientedBoundingBox(center, halfAxes);
 }
 
+NearFarDistance
+OrientedBoundingBox::computePlaneDistances(const Plane& plane) const noexcept {
+  double minDist = std::numeric_limits<double>::infinity();
+  double maxDist = -std::numeric_limits<double>::infinity();
+
+  const glm::dvec3& center = this->getCenter();
+  const glm::dmat3& halfAxes = this->getHalfAxes();
+
+  const glm::dvec3& u = halfAxes[0];
+  const glm::dvec3& v = halfAxes[1];
+  const glm::dvec3& w = halfAxes[2];
+
+  // project first corner
+  glm::dvec3 corner = center + u + v + w;
+  double mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  // project second corner
+  corner = center + u + v - w;
+  mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  // project third corner
+  corner = center + u - v + w;
+  mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  // project fourth corner
+  corner = center + u - v - w;
+  mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  // project fifth corner
+  corner = center - u + v + w;
+  mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  // project sixth corner
+  corner = center - u + v - w;
+  mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  // project seventh corner
+  corner = center - u - v + w;
+  mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  // project eighth corner
+  corner = center - u - v - w;
+  mag = plane.getPointDistance(corner);
+  minDist = glm::min(mag, minDist);
+  maxDist = glm::max(mag, maxDist);
+
+  return {minDist, maxDist};
+}
+
 } // namespace CesiumGeometry

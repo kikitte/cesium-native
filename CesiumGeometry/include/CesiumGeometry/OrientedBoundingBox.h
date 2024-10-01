@@ -4,6 +4,7 @@
 #include "BoundingSphere.h"
 #include "CullingResult.h"
 #include "Library.h"
+#include "NearFarDistance.h"
 
 #include <glm/mat3x3.hpp>
 #include <glm/vec3.hpp>
@@ -98,6 +99,17 @@ public:
    */
   double
   computeDistanceSquaredToPosition(const glm::dvec3& position) const noexcept;
+
+  /**
+   * @brief The distances calculated by the vector from the center of the
+   * bounding box to position projected onto direction. If you imagine the
+   * infinite number of planes with normal direction, this computes the smallest
+   * distance to the closest and farthest planes from position that intersect
+   * the bounding box.
+   * @return The nearest and farthest distances on the bounding box from
+   * position in direction.
+   */
+  NearFarDistance computePlaneDistances(const Plane& plane) const noexcept;
 
   /**
    * @brief Computes whether the given position is contained within the bounding
