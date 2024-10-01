@@ -480,3 +480,102 @@ TEST_CASE("OrientedBoundingBox::contains") {
     CHECK(!obb.contains(center + rotation * glm::dvec3(0.0, 0.0, 5.0)));
   }
 }
+
+TEST_CASE("OrientedBoundingBox::computePlaneDistances") {
+  glm::dmat3 r0 = glm::dmat3(glm::eulerAngleZ(glm::radians(-45.0)));
+  glm::dmat3 r1 = glm::dmat3(glm::eulerAngleY(glm::radians(45.0)));
+
+  glm::dmat3 rotation = r1 * r0;
+  glm::dvec3 scale{2.0, 3.0, 4.0};
+  rotation[0] *= scale[0];
+  rotation[1] *= scale[1];
+  rotation[2] *= scale[2];
+
+  glm::dvec3 center{4.0, 3.0, 2.0};
+
+  OrientedBoundingBox obb{center, rotation};
+
+  const glm::dmat3& halfAxes = obb.getHalfAxes();
+  const glm::dvec3& xAxis = halfAxes[0];
+  const glm::dvec3& yAxis = halfAxes[1];
+  const glm::dvec3& zAxis = halfAxes[2];
+
+  // from x direction
+  glm::dvec3 position{xAxis * 2.0 + center};
+  glm::dvec3 direction{glm::normalize(xAxis * -1.0)};
+  Plane plane{position, direction};
+
+  double d = glm::distance(position, center);
+  double expectedNear = d - scale.x;
+  double expectedFar = d + scale.x;
+
+  NearFarDistance nearFar = obb.computePlaneDistances(plane);
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedNear,
+      nearFar.near,
+      CesiumUtility::Math::Epsilon14));
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedFar,
+      nearFar.far,
+      CesiumUtility::Math::Epsilon14));
+
+  // from y direction
+  position = yAxis * 2.0 + center;
+  direction = glm::normalize(yAxis * -1.0);
+  plane = Plane{position, direction};
+
+  d = glm::distance(position, center);
+  expectedNear = d - scale.y;
+  expectedFar = d + scale.y;
+
+  nearFar = obb.computePlaneDistances(plane);
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedNear,
+      nearFar.near,
+      CesiumUtility::Math::Epsilon14));
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedFar,
+      nearFar.far,
+      CesiumUtility::Math::Epsilon14));
+
+  // from z direction
+  position = zAxis * 2.0 + center;
+  direction = glm::normalize(zAxis * -1.0);
+  plane = Plane{position, direction};
+
+  d = glm::distance(position, center);
+  expectedNear = d - scale.z;
+  expectedFar = d + scale.z;
+
+  nearFar = obb.computePlaneDistances(plane);
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedNear,
+      nearFar.near,
+      CesiumUtility::Math::Epsilon14));
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedFar,
+      nearFar.far,
+      CesiumUtility::Math::Epsilon14));
+
+  // from corner position
+  position = xAxis + yAxis + zAxis;
+  direction = glm::normalize(position * -1.0);
+
+  double cornerDistance = glm::length(position);
+  position += center;
+  plane = Plane{position, direction};
+
+  d = glm::distance(position, center);
+  expectedNear = d - cornerDistance;
+  expectedFar = d + cornerDistance;
+
+  nearFar = obb.computePlaneDistances(plane);
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedNear,
+      nearFar.near,
+      CesiumUtility::Math::Epsilon14));
+  CHECK(CesiumUtility::Math::equalsEpsilon(
+      expectedFar,
+      nearFar.far,
+      CesiumUtility::Math::Epsilon14));
+}
