@@ -53,4 +53,10 @@ BoundingSphere::transform(const glm::dmat4& transformation) const noexcept {
   return BoundingSphere(center, this->getRadius() * uniformScale);
 }
 
+NearFarDistance
+BoundingSphere::computePlaneDistances(const Plane& plane) const noexcept {
+  double centerDistance = plane.getPointDistance(this->_center);
+  return {centerDistance - _radius, centerDistance + _radius};
+}
+
 } // namespace CesiumGeometry
