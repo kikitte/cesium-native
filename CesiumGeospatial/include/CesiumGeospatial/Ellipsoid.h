@@ -82,6 +82,13 @@ public:
   constexpr const glm::dvec3& getRadii() const noexcept { return this->_radii; }
 
   /**
+   * @brief Returns the one over radii in x-, y-, and z-direction.
+   */
+  constexpr const glm::dvec3& getOneOverRadii() const noexcept {
+    return this->_oneOverRadii;
+  }
+
+  /**
    * @brief Computes the normal of the plane tangent to the surface of the
    * ellipsoid at the provided position.
    *
