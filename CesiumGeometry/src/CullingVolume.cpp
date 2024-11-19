@@ -11,13 +11,15 @@ CullingVolume createCullingVolume(
     const glm::dvec3& direction,
     const glm::dvec3& up,
     const double fovx,
-    const double fovy) noexcept {
+    const double fovy,
+    const double near,
+    const double far) noexcept {
   const double t = glm::tan(0.5 * fovy);
   const double b = -t;
   const double r = glm::tan(0.5 * fovx);
   const double l = -r;
 
-  const double n = 1.0;
+  const double n = near;
 
   // TODO: this is all ported directly from CesiumJS, can probably be refactored
   // to be more efficient with GLM.
@@ -64,6 +66,17 @@ CullingVolume createCullingVolume(
 
   const CesiumGeometry::Plane topPlane(normal, -glm::dot(normal, position));
 
-  return {leftPlane, rightPlane, topPlane, bottomPlane};
+  // Near plane computation
+  normal = direction;
+
+  const CesiumGeometry::Plane nearPlane(normal, -glm::dot(normal, nearCenter));
+
+  // Far plane computation
+  normal = direction * -1.0;
+  glm::dvec3 farCenter = direction * far;
+
+  const CesiumGeometry::Plane farPlane(normal, -glm::dot(normal, farCenter));
+
+  return {leftPlane, rightPlane, topPlane, bottomPlane, nearPlane, farPlane};
 }
 } // namespace Cesium3DTilesSelection
