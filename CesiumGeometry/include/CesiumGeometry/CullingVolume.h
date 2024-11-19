@@ -40,7 +40,42 @@ struct CullingVolume final {
    * Defaults to (0,0,1), with a distance of 0.
    */
   CesiumGeometry::Plane bottomPlane{glm::dvec3(0.0, 0.0, 1.0), 0.0};
+
+  /**
+   * @brief The near plane of the culling volume.
+   *
+   * Defaults to (0,0,1), with a distance of 0.
+   */
+  CesiumGeometry::Plane nearPlane{glm::dvec3(0.0, 0.0, 1.0), 0.0};
+
+  /**
+   * @brief The far plane of the culling volume.
+   *
+   * Defaults to (0,0,1), with a distance of 0.
+   */
+  CesiumGeometry::Plane farPlane{glm::dvec3(0.0, 0.0, 1.0), 0.0};
 };
+
+/**
+ * @brief Creates a {@link CullingVolume} for a perspective frustum.
+ *
+ * @param position The eye position
+ * @param direction The viewing direction
+ * @param up The up-vector of the frustum
+ * @param fovx The horizontal Field-Of-View angle, in radians
+ * @param fovy The vertical Field-Of-View angle, in radians
+ * @param near The distance to the near plane.
+ * @param far the distance to the far plane.
+ * @return The {@link CullingVolume}
+ */
+CullingVolume createCullingVolume(
+    const glm::dvec3& position,
+    const glm::dvec3& direction,
+    const glm::dvec3& up,
+    double fovx,
+    double fovy,
+    double near,
+    double far) noexcept;
 
 /**
  * @brief Creates a {@link CullingVolume} for a perspective frustum.
@@ -52,10 +87,12 @@ struct CullingVolume final {
  * @param fovy The vertical Field-Of-View angle, in radians
  * @return The {@link CullingVolume}
  */
-CullingVolume createCullingVolume(
+inline CullingVolume createCullingVolume(
     const glm::dvec3& position,
     const glm::dvec3& direction,
     const glm::dvec3& up,
     double fovx,
-    double fovy) noexcept;
+    double fovy) noexcept {
+  return createCullingVolume(position, direction, up, fovx, fovy, 1.0, 1.0);
+};
 } // namespace Cesium3DTilesSelection
